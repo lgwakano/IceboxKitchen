@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\IceboxKitchen.Contracts\IceboxKitchen.Contracts.csproj" />
+    <ProjectReference Include="..\IceboxKitchen.Application\IceboxKitchen.Application.csproj" />
+    <ProjectReference Include="..\IceboxKitchen.Infrastructure\IceboxKitchen.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

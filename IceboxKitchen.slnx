@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="IceboxKitchen.Api/IceboxKitchen.Api.csproj" />
+  <Project Path="IceboxKitchen.Application/IceboxKitchen.Application.csproj" />
+  <Project Path="IceboxKitchen.Contracts/IceboxKitchen.Contracts.csproj" />
+  <Project Path="IceboxKitchen.Domain/IceboxKitchen.Domain.csproj" />
+  <Project Path="IceboxKitchen.Infrastructure/IceboxKitchen.Infrastructure.csproj" />
+</Solution>
