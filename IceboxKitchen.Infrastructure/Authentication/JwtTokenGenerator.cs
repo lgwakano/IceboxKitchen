@@ -1,18 +1,20 @@
 using IceboxKitchen.Application.Common.Interfaces.Authentication;
+using IceboxKitchen.Application.Common.Interfaces.Providers;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using IceboxKitchen.Application.Common.Interfaces.Providers;
+using Microsoft.Extensions.Options;
 
 namespace IceboxKitchen.Infrastructure.Authentication;
-public class JwtTokenGenerator(IDateTimeProvider dateTimeProvider) : IJwtTokenGenerator
+public class JwtTokenGenerator(IDateTimeProvider dateTimeProvider, IOptions<JwtSettings> jwtOptions) : IJwtTokenGenerator
 {
+    private readonly JwtSettings jwtSettings = jwtOptions.Value;
     public string GenerateToken(Guid userId, string firstName, string lastName)
     {
         var signingCredentials = new SigningCredentials(
             new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes("super-secret-key-that-is-at-least-32-chars")),
+                Encoding.UTF8.GetBytes(jwtSettings.Secret)),
             SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
@@ -24,9 +26,9 @@ public class JwtTokenGenerator(IDateTimeProvider dateTimeProvider) : IJwtTokenGe
         };
 
         var securedToken = new JwtSecurityToken(
-            issuer: "IceboxKitchen",
-            audience: "IceboxKitchen",
-            expires: dateTimeProvider.UtcNow.AddMinutes(60),
+            issuer: jwtSettings.Issuer,
+            audience: jwtSettings.Audience,
+            expires: dateTimeProvider.UtcNow.AddMinutes(jwtSettings.ExpiryMinutes),
             claims: claims,
             signingCredentials: signingCredentials);
 
