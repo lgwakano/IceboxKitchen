@@ -3,9 +3,10 @@ using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using IceboxKitchen.Application.Common.Interfaces.Providers;
 
 namespace IceboxKitchen.Infrastructure.Authentication;
-public class JwtTokenGenerator : IJwtTokenGenerator
+public class JwtTokenGenerator(IDateTimeProvider dateTimeProvider) : IJwtTokenGenerator
 {
     public string GenerateToken(Guid userId, string firstName, string lastName)
     {
@@ -25,7 +26,7 @@ public class JwtTokenGenerator : IJwtTokenGenerator
         var securedToken = new JwtSecurityToken(
             issuer: "IceboxKitchen",
             audience: "IceboxKitchen",
-            expires: DateTime.UtcNow.AddHours(1),
+            expires: dateTimeProvider.UtcNow.AddMinutes(60),
             claims: claims,
             signingCredentials: signingCredentials);
 
