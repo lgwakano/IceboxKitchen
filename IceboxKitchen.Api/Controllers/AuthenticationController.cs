@@ -11,15 +11,36 @@ public class AuthenticationController(IAuthenticationService authenticationServi
     [Route("register")]
     public IActionResult Register(RegisterRequest request)
     {
-        var result = authenticationService.Register(request.FirstName, request.LastName, request.Email, request.Password);
-        return Ok(result);
+        var authResult = authenticationService.Register(
+            request.FirstName, 
+            request.LastName, 
+            request.Email, 
+            request.Password);
+
+        var response = new AuthenticationResponse(
+            authResult.user.Id, 
+            authResult.user.FirstName, 
+            authResult.user.LastName, 
+            authResult.user.Email, 
+            authResult.Token);
+
+        return Ok(response);
     }
 
     [Route("login")]
     public IActionResult Login(LoginRequest request)
     {
-        var result = authenticationService.Login(request.Email, request.Password);
-        return Ok(result);
+        var authResult = authenticationService.Login(
+            request.Email, request.Password);
+
+        var response = new AuthenticationResponse(
+            authResult.user.Id, 
+            authResult.user.FirstName, 
+            authResult.user.LastName, 
+            authResult.user.Email, 
+            authResult.Token);
+
+        return Ok(response);
     }
     
 }
