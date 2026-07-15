@@ -69,8 +69,8 @@ This project is a learning-driven, work-in-progress build (currently on mileston
 - [x] 1. Solution & project scaffolding
 - [x] 2. Authentication & JWT token generation
 - [x] 3. Repository pattern
-- [ ] 4. Global error handling
-- [ ] 5. Flow control & result patterns
+- [x] 4. Global error handling
+- [x] 5. Flow control & result patterns
 - [ ] 6. CQRS with MediatR
 - [ ] 7. Object mapping (Mapster)
 - [ ] 8. Request validation & pipeline behaviors
