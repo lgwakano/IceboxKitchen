@@ -1,4 +1,4 @@
-using IceboxKitchen.Api.Errors;
+using IceboxKitchen.Api.Common.Errors;
 using IceboxKitchen.Application;
 using IceboxKitchen.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Infrastructure;

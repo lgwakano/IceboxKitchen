@@ -1,17 +1,19 @@
+using ErrorOr;
 using IceboxKitchen.Application.Common.Interfaces.Authentication;
 using IceboxKitchen.Application.Common.Interfaces.Persistence;
+using IceboxKitchen.Domain.Common.Errors;
 using IceboxKitchen.Domain.Entities;
 
 namespace IceboxKitchen.Application.Services.Authentication;
 
 public class AuthenticationService(IJwtTokenGenerator jwtTokenGenerator, IUserRepository userRepository) : IAuthenticationService
 {
-    public AuthenticationResult Register(string firstName, string lastName, string email, string password)
+    public ErrorOr<AuthenticationResult> Register(string firstName, string lastName, string email, string password)
     {
         //1. Check if user does not exist
         if (userRepository.GetUserByEmail(email) is not null)
         {
-            throw new InvalidOperationException("User with this email already exists.");
+            return Errors.User.DuplicateEmail;
         }
 
         //2. Create user - generate unique id
@@ -32,19 +34,18 @@ public class AuthenticationService(IJwtTokenGenerator jwtTokenGenerator, IUserRe
             token);
     }
 
-    public AuthenticationResult Login(string email, string password)
+    public ErrorOr<AuthenticationResult> Login(string email, string password)
     {
         //1. Check if user exists
         if (userRepository.GetUserByEmail(email) is not User user)
         {
-            //Not safe to return user information need to change later to not give away if user exists or not
-            throw new InvalidOperationException("User with this email does not exist.");
+            return Errors.Authentication.InvalidCredentials;
         }
 
         //2. Check if password is correct
         if (user.Password != password)
         {
-            throw new InvalidOperationException("Invalid password.");
+            return Errors.Authentication.InvalidCredentials;
         }
 
         //3. Create JWT token

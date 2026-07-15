@@ -1,10 +1,12 @@
 using System.Diagnostics;
+using ErrorOr;
+using IceboxKitchen.Api.Common.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.Extensions.Options;
 
-namespace IceboxKitchen.Api.Errors;
+namespace IceboxKitchen.Api.Common.Errors;
 
 public class IceboxKitchenProblemDetailsFactory(IOptions<ApiBehaviorOptions> options) : ProblemDetailsFactory
 {
@@ -17,9 +19,11 @@ public class IceboxKitchenProblemDetailsFactory(IOptions<ApiBehaviorOptions> opt
         string? detail = null,
         string? instance = null)
     {
+        statusCode ??= 500;
+
         var problemDetails = new ProblemDetails
         {
-            Status = statusCode ?? 500,
+            Status = statusCode,
             Title = title ?? "An error occurred while processing your request.",
             Type = type,
             Detail = detail,
@@ -31,9 +35,34 @@ public class IceboxKitchenProblemDetailsFactory(IOptions<ApiBehaviorOptions> opt
         return problemDetails;
     }
 
-    public void ApplyProblemDetailsDefaults(HttpContext httpContext, ProblemDetails problemDetails, int statusCode  )
+    public override ValidationProblemDetails CreateValidationProblemDetails(
+        HttpContext httpContext,
+        ModelStateDictionary modelStateDictionary,
+        int? statusCode = null,
+        string? title = null,
+        string? type = null,
+        string? detail = null,
+        string? instance = null)
     {
+        statusCode ??= 400;
 
+        var validationProblemDetails = new ValidationProblemDetails(modelStateDictionary)
+        {
+            Status = statusCode,
+            Title = title ?? "One or more validation errors occurred.",
+            Type = type,
+            Detail = detail,
+            Instance = instance
+        };
+
+        ApplyProblemDetailsDefaults(httpContext, validationProblemDetails, statusCode.Value);
+
+        return validationProblemDetails;
+    }
+
+
+    public void ApplyProblemDetailsDefaults(HttpContext httpContext, ProblemDetails problemDetails, int statusCode)
+    {
         problemDetails.Status ??= statusCode;
 
         if(_options.ClientErrorMapping.TryGetValue(statusCode, out var clientErrorData))
@@ -49,26 +78,11 @@ public class IceboxKitchenProblemDetailsFactory(IOptions<ApiBehaviorOptions> opt
         }
 
         problemDetails.Extensions.Add("timestamp", DateTime.UtcNow);
-    }
 
-    public override ValidationProblemDetails CreateValidationProblemDetails(
-        HttpContext httpContext,
-        ModelStateDictionary modelStateDictionary,
-        int? statusCode = null,
-        string? title = null,
-        string? type = null,
-        string? detail = null,
-        string? instance = null)
-    {
-        var validationProblemDetails = new ValidationProblemDetails(modelStateDictionary)
+        var errors = httpContext?.Items[HttpContextItemKeys.Errors] as List<Error>;
+        if (errors is not null && errors.Any())
         {
-            Status = statusCode ?? 400,
-            Title = title ?? "One or more validation errors occurred.",
-            Type = type,
-            Detail = detail,
-            Instance = instance
-        };
-
-        return validationProblemDetails;
+            problemDetails.Extensions.Add("errorCodes", errors.Select(e => e.Code));
+        }
     }
 }
