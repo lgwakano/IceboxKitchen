@@ -1,22 +1,28 @@
-using Microsoft.AspNetCore.Mvc;
-using IceboxKitchen.Contracts.Authentication;
-using IceboxKitchen.Application.Services.Authentication;
 using ErrorOr;
+using IceboxKitchen.Application.Authentication.Commands.Register;
+using IceboxKitchen.Application.Authentication.Queries.Login;
+using IceboxKitchen.Application.Authentication.Common;
+using IceboxKitchen.Contracts.Authentication;
 using IceboxKitchen.Domain.Common.Errors;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
 
 namespace IceboxKitchen.Api.Controllers;
 
 [Route("auth")]
-public class AuthenticationController(IAuthenticationService authenticationService) : ApiController
+public class AuthenticationController(ISender mediator) : ApiController
 {
+    private readonly ISender _mediator = mediator;
     [Route("register")]
-    public IActionResult Register(RegisterRequest request)
+    public async Task<IActionResult> Register(RegisterRequest request)
     {
-        ErrorOr<AuthenticationResult> authResult = authenticationService.Register(
+        var command = new RegisterCommand(
             request.FirstName,
             request.LastName,
             request.Email,
             request.Password);
+
+        ErrorOr<AuthenticationResult> authResult = await _mediator.Send(command);
 
         return authResult.Match(
             authResult => Ok(MapAuthResult(authResult)),
@@ -24,10 +30,13 @@ public class AuthenticationController(IAuthenticationService authenticationServi
     }
 
     [Route("login")]
-    public IActionResult Login(LoginRequest request)
+    public async Task<IActionResult> Login(LoginRequest request)
     {
-        ErrorOr<AuthenticationResult> authResult = authenticationService.Login(
-            request.Email, request.Password);
+        var query = new LoginQuery(
+            request.Email,
+            request.Password);
+
+        ErrorOr<AuthenticationResult> authResult = await _mediator.Send(query);
 
         if(authResult.IsError && authResult.FirstError == Errors.Authentication.InvalidCredentials)
         {

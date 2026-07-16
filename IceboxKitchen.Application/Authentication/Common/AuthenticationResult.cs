@@ -1,6 +1,6 @@
 using IceboxKitchen.Domain.Entities;
 
-namespace IceboxKitchen.Application.Services.Authentication;
+namespace IceboxKitchen.Application.Authentication.Common;
 public record AuthenticationResult(
     User user,
     string Token
