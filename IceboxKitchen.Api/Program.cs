@@ -1,21 +1,13 @@
-using IceboxKitchen.Api.Common.Errors;
+using IceboxKitchen.Api;
 using IceboxKitchen.Application;
 using IceboxKitchen.Infrastructure;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 {
     builder.Services
+        .AddPresentation()
         .AddApplication()
         .AddInfrastructure(builder.Configuration);
-    
-    builder.Services.AddControllers();
-
-    builder.Services.AddSingleton<ProblemDetailsFactory, IceboxKitchenProblemDetailsFactory>();
-    
-    // Add services to the container.
-    // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-    builder.Services.AddOpenApi();
 }
 
 var app = builder.Build();
