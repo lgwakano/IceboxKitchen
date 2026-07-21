@@ -26,17 +26,8 @@ public class AuthenticationController(ISender mediator, IMapper mapper) : ApiCon
         ErrorOr<AuthenticationResult> authResult = await _mediator.Send(command);
 
         return authResult.Match(
-            authResult => Ok(NewMethod(authResult)),
+            authResult => Ok(_mapper.Map<AuthenticationResponse>(authResult)),
             errors => Problem(errors));
-    }
-
-    private AuthenticationResponse NewMethod(AuthenticationResult authResult)
-    {
-        TypeAdapterConfig<AuthenticationResult, AuthenticationResponse>.NewConfig()
-            .Map(dest => dest, src => src.Token)
-            .Map(dest => dest, src => src.User);
-
-        return _mapper.Map<AuthenticationResponse>(authResult);
     }
 
     [Route("login")]
