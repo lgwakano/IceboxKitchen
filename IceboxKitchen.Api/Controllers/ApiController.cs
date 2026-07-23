@@ -19,23 +19,17 @@ public class ApiController : ControllerBase
 
         if (errors.All(error => error.Type == ErrorType.Validation))
         {
-            var modelStateDictionary = new ModelStateDictionary();
-
-            foreach (var error in errors)
-            {
-                modelStateDictionary.AddModelError(
-                    error.Code,
-                    error.Description);
-            }
-
-            return ValidationProblem(modelStateDictionary);
+            return ValidationProblem(errors);
         }
 
         HttpContext.Items[HttpContextItemKeys.Errors] = errors;
 
-        var firstError = errors[0];
+        return Problem(errors[0]);
+    }
 
-        var statusCode = firstError.Type switch
+    private IActionResult Problem(Error error)
+    {
+        var statusCode = error.Type switch
         {
             ErrorType.Conflict => StatusCodes.Status409Conflict,
             ErrorType.Validation => StatusCodes.Status400BadRequest,
@@ -45,7 +39,20 @@ public class ApiController : ControllerBase
 
         return Problem(
             statusCode: statusCode,
-            title: firstError.Description);
+            title: error.Description);
     }
-    
+
+    private IActionResult ValidationProblem(List<Error> errors)
+    {
+        var modelStateDictionary = new ModelStateDictionary();
+
+        foreach (var error in errors)
+        {
+            modelStateDictionary.AddModelError(
+                error.Code,
+                error.Description);
+        }
+
+        return ValidationProblem(modelStateDictionary);
+    }
 }
