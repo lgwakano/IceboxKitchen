@@ -1,0 +1,42 @@
+using ErrorOr;
+using FluentValidation;
+using IceboxKitchen.Application.Authentication.Commands.Register;
+using IceboxKitchen.Application.Authentication.Common;
+using MediatR;
+
+namespace IceboxKitchen.Application.Common.Behaviors;
+
+public class ValidationBehavior<TRequest, TResponse>(IValidator<TRequest>? validator = null) : 
+    IPipelineBehavior<TRequest, TResponse>
+        where TRequest : IRequest<TResponse>
+        where TResponse : IErrorOr
+{
+    private readonly IValidator<TRequest>? _validator = validator;
+
+    public async Task<TResponse> Handle(
+        TRequest request,
+        RequestHandlerDelegate<TResponse> next,
+        CancellationToken cancellationToken)
+    {
+        if (_validator is null)
+        {
+            return await next();
+        }
+        
+        var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            var errors = validationResult.Errors
+                .Select(error => Error.Validation(
+                    error.PropertyName, 
+                    error.ErrorMessage))
+                .ToList();
+
+            return (dynamic)errors;
+        }
+
+        var result = await next();
+        
+        return result;
+    }
+}
