@@ -73,7 +73,7 @@ This project is a learning-driven, work-in-progress build (currently on mileston
 - [x] 5. Flow control & result patterns
 - [x] 6. CQRS with MediatR
 - [x] 7. Object mapping (Mapster)
-- [ ] 8. Request validation & pipeline behaviors
+- [x] 8. Request validation & pipeline behaviors
 - [ ] 9. JWT bearer authentication & authorization
 - [ ] 10. Process modeling
 - [ ] 11. Domain modeling (aggregates & bounded contexts)
