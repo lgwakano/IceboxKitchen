@@ -1,11 +1,13 @@
 using ErrorOr;
 using IceboxKitchen.Api.Common.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace IceboxKitchen.Api.Controllers;
 
 [ApiController]
+[Authorize]
 public class ApiController : ControllerBase
 {
 
